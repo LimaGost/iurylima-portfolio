@@ -74,14 +74,24 @@ function coverUV(canvasAspect: number, imgAspect: number, focalX: number, focalY
   return { scale: [visX, visY] as const, offset: [offsetX, offsetY] as const };
 }
 
+const VIDEO_EXT_RE = /\.(mp4|webm|mov|m4v|ogv)(\?.*)?$/i;
+
 interface HeroRevealProps {
+  /** imagem ou vídeo (mp4/webm/...) — tipo detectado pela extensão do arquivo */
   maskSrc: string;
+  /** imagem ou vídeo (mp4/webm/...) — tipo detectado pela extensão do arquivo */
   photoSrc: string;
   className?: string;
   style?: CSSProperties;
-  /** ponto focal compartilhado (0..1, mesma semântica do object-position % do CSS) */
+  /** ponto focal padrão (0..1, mesma semântica do object-position % do CSS) — usado quando os overrides abaixo não são passados */
   focalX?: number;
   focalY?: number;
+  /** sobrescreve o ponto focal só da camada de fundo (maskSrc) — útil quando os dois arquivos têm enquadramentos nativos bem diferentes */
+  maskFocalX?: number;
+  maskFocalY?: number;
+  /** sobrescreve o ponto focal só da camada revelada (photoSrc) */
+  photoFocalX?: number;
+  photoFocalY?: number;
 }
 
 export default function HeroReveal({
@@ -91,7 +101,15 @@ export default function HeroReveal({
   style,
   focalX = 0.8,
   focalY = 0.5,
+  maskFocalX,
+  maskFocalY,
+  photoFocalX,
+  photoFocalY,
 }: HeroRevealProps) {
+  const mFocalX = maskFocalX ?? focalX;
+  const mFocalY = maskFocalY ?? focalY;
+  const pFocalX = photoFocalX ?? focalX;
+  const pFocalY = photoFocalY ?? focalY;
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [webglOk, setWebglOk] = useState(true);
@@ -166,7 +184,26 @@ export default function HeroReveal({
     let maskReady = false;
     let photoReady = false;
 
-    function loadTexture(src: string, tex: WebGLTexture, onReady: (aspect: number) => void) {
+    // retorna o <video> quando a fonte é um vídeo, pra tick() saber que precisa
+    // re-enviar o frame pra textura a cada frame (imagem estática só sobe uma vez)
+    function loadTexture(src: string, tex: WebGLTexture, onReady: (aspect: number) => void): HTMLVideoElement | null {
+      if (VIDEO_EXT_RE.test(src)) {
+        const video = document.createElement("video");
+        video.muted = true;
+        video.loop = true;
+        video.playsInline = true;
+        video.autoplay = true;
+        video.preload = "auto";
+        video.style.cssText = "position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;";
+        video.addEventListener("loadeddata", () => {
+          if (cancelled) return;
+          onReady(video.videoWidth / video.videoHeight);
+        });
+        video.src = src;
+        container!.appendChild(video);
+        video.play().catch(() => {});
+        return video;
+      }
       const img = new Image();
       img.onload = () => {
         if (cancelled) return;
@@ -176,9 +213,10 @@ export default function HeroReveal({
         onReady(img.naturalWidth / img.naturalHeight);
       };
       img.src = src;
+      return null;
     }
-    loadTexture(maskSrc, maskTex, (a) => { maskAspect = a; maskReady = true; });
-    loadTexture(photoSrc, photoTex, (a) => { photoAspect = a; photoReady = true; });
+    const maskVideo = loadTexture(maskSrc, maskTex, (a) => { maskAspect = a; maskReady = true; });
+    const photoVideo = loadTexture(photoSrc, photoTex, (a) => { photoAspect = a; photoReady = true; });
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     let cw = 1, ch = 1;
@@ -239,8 +277,20 @@ export default function HeroReveal({
       const centerYpx = ch - y * ch; // origem do DOM é canto superior esquerdo, a do WebGL é inferior esquerdo
 
       const canvasAspect = cw / ch;
-      const m = coverUV(canvasAspect, maskAspect, focalX, focalY);
-      const p = coverUV(canvasAspect, photoAspect, focalX, focalY);
+      const m = coverUV(canvasAspect, maskAspect, mFocalX, mFocalY);
+      const p = coverUV(canvasAspect, photoAspect, pFocalX, pFocalY);
+
+      // imagem estática já subiu a textura no onload; vídeo tem frame novo toda hora
+      if (maskVideo && maskVideo.readyState >= maskVideo.HAVE_CURRENT_DATA) {
+        gl!.pixelStorei(gl!.UNPACK_FLIP_Y_WEBGL, true);
+        gl!.bindTexture(gl!.TEXTURE_2D, maskTex);
+        gl!.texImage2D(gl!.TEXTURE_2D, 0, gl!.RGBA, gl!.RGBA, gl!.UNSIGNED_BYTE, maskVideo);
+      }
+      if (photoVideo && photoVideo.readyState >= photoVideo.HAVE_CURRENT_DATA) {
+        gl!.pixelStorei(gl!.UNPACK_FLIP_Y_WEBGL, true);
+        gl!.bindTexture(gl!.TEXTURE_2D, photoTex);
+        gl!.texImage2D(gl!.TEXTURE_2D, 0, gl!.RGBA, gl!.RGBA, gl!.UNSIGNED_BYTE, photoVideo);
+      }
 
       gl!.useProgram(program);
       gl!.uniform2f(uCenter, centerXpx, centerYpx);
@@ -273,24 +323,41 @@ export default function HeroReveal({
       container.removeEventListener("touchmove", onTouch);
       container.removeEventListener("touchend", onTouchEnd);
       container.removeEventListener("touchcancel", onTouchEnd);
+      for (const video of [maskVideo, photoVideo]) {
+        if (!video) continue;
+        video.pause();
+        video.removeAttribute("src");
+        video.load();
+        video.remove();
+      }
       gl.deleteProgram(program);
       gl.deleteShader(vs);
       gl.deleteShader(fs);
       gl.deleteTexture(maskTex);
       gl.deleteTexture(photoTex);
     };
-  }, [maskSrc, photoSrc, focalX, focalY]);
+  }, [maskSrc, photoSrc, mFocalX, mFocalY, pFocalX, pFocalY]);
 
   return (
     <div ref={containerRef} className={`relative overflow-hidden ${className}`} style={style}>
       {webglOk ? (
         <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
+      ) : VIDEO_EXT_RE.test(maskSrc) ? (
+        <video
+          src={maskSrc}
+          className="absolute inset-0 h-full w-full object-cover"
+          style={{ objectPosition: `${mFocalX * 100}% ${mFocalY * 100}%` }}
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
       ) : (
         <img
           src={maskSrc}
           alt="Iury Lima"
           className="absolute inset-0 h-full w-full object-cover"
-          style={{ objectPosition: `${focalX * 100}% ${focalY * 100}%` }}
+          style={{ objectPosition: `${mFocalX * 100}% ${mFocalY * 100}%` }}
           fetchPriority="high"
           loading="eager"
           decoding="async"

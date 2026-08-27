@@ -8,6 +8,27 @@ export default function Hero() {
       className="relative flex items-center overflow-hidden pt-[88px]"
       style={{ minHeight: "100svh" }}
     >
+      <div className="absolute inset-0">
+        <HeroReveal
+          maskSrc="/hero-reveal.mp4"
+          photoSrc="/iury-photo.png"
+          maskFocalX={0.62}
+          maskFocalY={0.42}
+          photoFocalX={0.5}
+          photoFocalY={0.32}
+          className="h-full w-full bg-frame"
+        />
+      </div>
+
+      {/* gradiente pra manter texto e navbar legíveis por cima do vídeo em tela cheia */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, rgba(0,0,0,0.94) 0%, rgba(0,0,0,0.82) 32%, rgba(0,0,0,0.4) 62%, rgba(0,0,0,0) 90%), linear-gradient(to bottom, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0) 22%)",
+        }}
+      />
+
       <WebCorner
         className="pointer-events-none absolute left-0 top-0 h-[220px] w-[220px] text-accent"
         style={{ opacity: 0.5 }}
@@ -19,8 +40,9 @@ export default function Hero() {
         stroke="currentColor"
       />
 
-      <div className="wrap grid grid-cols-1 items-center gap-16 py-16 md:grid-cols-[1fr_0.95fr] md:gap-10">
-        <div>
+      {/* pointer-events-none pro espaço vazio à direita do texto deixar o hover do reveal passar pro canvas; o bloco de texto reativa pointer-events pra manter os botões clicáveis */}
+      <div className="wrap pointer-events-none relative z-10 py-16">
+        <div className="pointer-events-auto max-w-[560px]">
           <div className="mb-5 flex items-center gap-3">
             <span className="inline-block h-2.5 w-2.5 bg-accent" />
             <span className="text-[15px] font-bold tracking-[2.5px] text-accent">
@@ -52,42 +74,24 @@ export default function Hero() {
             </a>
           </div>
         </div>
+      </div>
 
-        <div className="relative mx-auto w-full max-w-[420px] md:max-w-none">
-          {/* moldura de retícula — os cantos dão um ar de HUD/painel de quadrinho ao reveal */}
-          <span className="absolute -left-4 -top-4 h-7 w-7 border-l-2 border-t-2 border-accent/70" aria-hidden="true" />
-          <span className="absolute -right-4 -top-4 h-7 w-7 border-r-2 border-t-2 border-accent/70" aria-hidden="true" />
-          <span className="absolute -bottom-4 -left-4 h-7 w-7 border-b-2 border-l-2 border-accent/70" aria-hidden="true" />
-          <span className="absolute -bottom-4 -right-4 h-7 w-7 border-b-2 border-r-2 border-accent/70" aria-hidden="true" />
-
-          <HeroReveal
-            maskSrc="/hero-mask.jpg"
-            photoSrc="/hero-reveal.png"
-            focalX={0.8}
-            focalY={0.5}
-            className="w-full bg-frame"
-            style={{ aspectRatio: "4 / 5" }}
-          />
-
-          {/* dica presa à própria moldura, não flutuando embaixo — sempre lida como "sobre esta imagem" */}
-          <div
-            className="absolute bottom-4 left-4 flex items-center gap-2 rounded-full border border-white/15 bg-black/60 py-2 pl-3 pr-4 backdrop-blur-sm"
-            style={{ boxShadow: "0 4px 16px rgba(0,0,0,0.4)" }}
-          >
-            <MousePointerClick size={14} className="hidden text-accent sm:block" aria-hidden="true" />
-            <Hand size={14} className="text-accent sm:hidden" aria-hidden="true" />
-            <span className="font-display text-[12px] italic tracking-[0.5px] text-white">
-              <span className="hidden sm:inline">Passe o mouse para revelar</span>
-              <span className="sm:hidden">Toque e segure para revelar</span>
-            </span>
-          </div>
-        </div>
+      <div
+        className="absolute bottom-8 right-6 z-10 flex items-center gap-2 rounded-full border border-white/15 bg-black/60 py-2 pl-3 pr-4 backdrop-blur-sm sm:right-8"
+        style={{ boxShadow: "0 4px 16px rgba(0,0,0,0.4)" }}
+      >
+        <MousePointerClick size={14} className="hidden text-accent sm:block" aria-hidden="true" />
+        <Hand size={14} className="text-accent sm:hidden" aria-hidden="true" />
+        <span className="font-display text-[12px] italic tracking-[0.5px] text-white">
+          <span className="hidden sm:inline">Passe o mouse para revelar</span>
+          <span className="sm:hidden">Toque e segure para revelar</span>
+        </span>
       </div>
 
       <a
         href="#about"
         aria-label="Rolar até a seção Sobre"
-        className="absolute bottom-7 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-muted sm:flex"
+        className="absolute bottom-7 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-2 text-muted sm:flex"
       >
         <span className="text-[10px] font-bold tracking-[3px]">ROLAR</span>
         <span className="h-9 w-px animate-pulse bg-thread" />

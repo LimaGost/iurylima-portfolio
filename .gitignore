@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Vídeos brutos (capturas originais não otimizadas para web)
+source-media
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
