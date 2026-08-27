@@ -1,32 +1,49 @@
-# React + TypeScript + Vite
+# Iury Lima — Portfólio
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Meu site pessoal, construído do zero pra mostrar quem eu sou e o que eu já fiz: [Iury Lima](https://github.com/LimaGost), Analista de Sistemas na Linx Goiânia, estudando e evoluindo em desenvolvimento Full Stack.
 
-Currently, two official plugins are available:
+A ideia por trás do visual foi fugir do portfólio genérico de "cards brancos e fonte bonitinha" e trazer uma identidade mais forte — daí o tema de teia de aranha, cursor customizado e uma paleta mais escura com detalhes em vermelho.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Stack
 
-## React Compiler
+- **React 19** + **TypeScript**
+- **Vite** (build e dev server)
+- **Tailwind CSS 4**
+- **Framer Motion** pras animações e transições de seção
+- **Lucide React** pros ícones
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## O que tem no site
 
-## Expanding the Oxlint configuration
+- Hero com efeito de reveal na foto (passa o mouse e a imagem aparece)
+- Seção Sobre, com stack principal e um resumo de quem eu sou
+- Experiência profissional
+- Habilidades técnicas, separadas por categoria e nível (básico / intermediário / avançado)
+- Projetos em destaque
+- Formulário de contato
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+Ainda estou terminando de conectar o formulário de contato a um backend de verdade (hoje ele só previne o reload da página) — a ideia é subir isso como uma função serverless na Vercel.
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+## Rodando localmente
+
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Abre em `http://localhost:5173`.
+
+Outros scripts:
+
+```bash
+npm run build     # build de produção
+npm run preview   # serve o build localmente
+npm run lint      # oxlint
+```
+
+## Deploy
+
+Hospedado na [Vercel](https://vercel.com).
+
+## Contato
+
+Se quiser trocar uma ideia sobre alguma dessas seções ou sobre o código, os links de contato estão no próprio site.
