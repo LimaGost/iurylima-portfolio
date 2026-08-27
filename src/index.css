@@ -1,0 +1,184 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Anton", sans-serif;
+  --font-body: "Inter", sans-serif;
+
+  /* tokens de design — fundo preto homogêneo em todo o site */
+  --color-accent: #d81f26;
+  --color-accent-dim: #ad1418;
+  --color-ink: #f5f5f5;
+  --color-dark: #000000;
+  --color-page: #000000;
+  --color-muted: #a6a9b0;
+  --color-muted-2: #b4b7bd;
+  --color-body-text: #c7c9ce;
+  --color-body-text-2: #b4b7bd;
+  --color-thread: #6a6d74;
+  --color-frame: #000000;
+  --color-surface: rgba(255, 255, 255, 0.04);
+  --color-surface-border: rgba(255, 255, 255, 0.1);
+
+  /* tokens legados (usados no preloader) */
+  --color-spider-red: #d81f26;
+  --color-spider-red-dark: #ad1418;
+  --color-spider-black: #030303;
+  --color-spider-white: #ffffff;
+
+  /* escala tipográfica editorial — uma progressão consistente, sem tamanhos aleatórios */
+  --text-display: clamp(2.75rem, 2rem + 3.6vw, 5.75rem);
+  --text-display--line-height: 0.94;
+  --text-display--letter-spacing: 0.01em;
+  --text-h1: clamp(2.125rem, 1.65rem + 2.2vw, 3.375rem);
+  --text-h1--line-height: 1.03;
+  --text-h2: clamp(1.5rem, 1.28rem + 1vw, 2rem);
+  --text-h2--line-height: 1.2;
+  --text-h3: 1.125rem;
+  --text-h3--line-height: 1.35;
+  --text-body: 1rem;
+  --text-body--line-height: 1.75;
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.6;
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 1.4;
+  --text-caption--letter-spacing: 0.16em;
+
+  --container-page: 1360px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: var(--color-page);
+  color: var(--color-ink);
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #a7a49c;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: white;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-accent);
+  border-radius: 999px;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+}
+
+/* container editorial — fonte única de largura/margens da página */
+.wrap {
+  width: 100%;
+  max-width: var(--container-page);
+  margin-inline: auto;
+  padding-inline: clamp(1.5rem, 4vw, 3.5rem);
+}
+
+/* link "pular para o conteúdo" — só aparece quando recebe foco */
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -3rem;
+  z-index: 200;
+  background: var(--color-accent);
+  color: #fff;
+  padding: 0.75rem 1.25rem;
+  border-radius: 4px;
+  font-size: var(--text-small);
+  font-weight: 700;
+  transition: top 0.2s ease;
+}
+.skip-link:focus {
+  top: 1rem;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* base para animação de entrada no scroll, controlada via data-reveal pelo IntersectionObserver */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+[data-reveal="in"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes marquee-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes marquee-right {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* cursor customizado — só em desktop com mouse de precisão, ver Cursor.tsx */
+@media (hover: hover) and (pointer: fine) {
+  html.has-custom-cursor,
+  html.has-custom-cursor a,
+  html.has-custom-cursor button {
+    cursor: none;
+  }
+}
+.cursor-ring--active {
+  width: 3rem;
+  height: 3rem;
+  border-color: var(--color-accent);
+  background: rgba(216, 31, 38, 0.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+}
