@@ -16,6 +16,7 @@ export default function Hero() {
           maskFocalY={0.42}
           photoFocalX={0.5}
           photoFocalY={0.32}
+          photoZoomOut={1.35}
           className="h-full w-full bg-frame"
         />
       </div>

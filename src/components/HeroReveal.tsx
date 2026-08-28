@@ -74,6 +74,19 @@ function coverUV(canvasAspect: number, imgAspect: number, focalX: number, focalY
   return { scale: [visX, visY] as const, offset: [offsetX, offsetY] as const };
 }
 
+// amplia a janela visível além do que o "cover" pediria, encolhendo o sujeito na tela.
+// só funciona sem costura porque a textura usa CLAMP_TO_EDGE e a foto tem fundo liso:
+// a franja extra fica repetindo o pixel da borda em vez de mostrar algo cortado.
+function zoomOut(uv: ReturnType<typeof coverUV>, factor: number) {
+  if (factor === 1) return uv;
+  const scale: [number, number] = [uv.scale[0] * factor, uv.scale[1] * factor];
+  const offset: [number, number] = [
+    uv.offset[0] - (scale[0] - uv.scale[0]) / 2,
+    uv.offset[1] - (scale[1] - uv.scale[1]) / 2,
+  ];
+  return { scale, offset };
+}
+
 const VIDEO_EXT_RE = /\.(mp4|webm|mov|m4v|ogv)(\?.*)?$/i;
 
 interface HeroRevealProps {
@@ -92,6 +105,8 @@ interface HeroRevealProps {
   /** sobrescreve o ponto focal só da camada revelada (photoSrc) */
   photoFocalX?: number;
   photoFocalY?: number;
+  /** >1 afasta a foto revelada (ela ocupa uma fração menor da tela) — útil quando a foto de origem já é um close bem fechado e não sobra imagem pra preencher uma hero larga sem exagerar no zoom */
+  photoZoomOut?: number;
 }
 
 export default function HeroReveal({
@@ -105,6 +120,7 @@ export default function HeroReveal({
   maskFocalY,
   photoFocalX,
   photoFocalY,
+  photoZoomOut = 1,
 }: HeroRevealProps) {
   const mFocalX = maskFocalX ?? focalX;
   const mFocalY = maskFocalY ?? focalY;
@@ -272,13 +288,15 @@ export default function HeroReveal({
       y += (ty - y) * 0.14;
       r += (tr - r) * 0.07;
 
-      const radiusPx = Math.max(0, r) * Math.max(cw, ch) * 0.42;
+      // baseado na MENOR dimensão do canvas: numa hero larga, escalar pela largura fazia
+      // o círculo crescer bem além da altura do rosto e cortar a máscara em cima de cabelo/pescoço
+      const radiusPx = Math.max(0, r) * Math.min(cw, ch) * 0.22;
       const centerXpx = x * cw;
       const centerYpx = ch - y * ch; // origem do DOM é canto superior esquerdo, a do WebGL é inferior esquerdo
 
       const canvasAspect = cw / ch;
       const m = coverUV(canvasAspect, maskAspect, mFocalX, mFocalY);
-      const p = coverUV(canvasAspect, photoAspect, pFocalX, pFocalY);
+      const p = zoomOut(coverUV(canvasAspect, photoAspect, pFocalX, pFocalY), photoZoomOut);
 
       // imagem estática já subiu a textura no onload; vídeo tem frame novo toda hora
       if (maskVideo && maskVideo.readyState >= maskVideo.HAVE_CURRENT_DATA) {
@@ -336,7 +354,7 @@ export default function HeroReveal({
       gl.deleteTexture(maskTex);
       gl.deleteTexture(photoTex);
     };
-  }, [maskSrc, photoSrc, mFocalX, mFocalY, pFocalX, pFocalY]);
+  }, [maskSrc, photoSrc, mFocalX, mFocalY, pFocalX, pFocalY, photoZoomOut]);
 
   return (
     <div ref={containerRef} className={`relative overflow-hidden ${className}`} style={style}>
