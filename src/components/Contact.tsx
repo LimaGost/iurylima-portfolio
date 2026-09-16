@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Copy, Check, Send, Sparkles, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Copy, Check, Send, Sparkles, AlertCircle, CheckCircle2, Clock } from "lucide-react";
 import WebSvg from "./WebSvg";
 import Reveal from "./Reveal";
-import { GithubIcon, LinkedinIcon, MailIcon } from "./SocialIcons";
+import { GithubIcon, LinkedinIcon, MailIcon, WhatsappIcon } from "./SocialIcons";
 
 const availability = [
   "Desenvolvimento Full-Stack (React & Node.js)",
@@ -32,9 +32,17 @@ const contactLinks = [
     href: `mailto:${directEmail}`,
     icon: MailIcon,
   },
+  {
+    label: "WhatsApp",
+    value: "(62) 99346-4050",
+    href: "https://wa.me/5562993464050",
+    icon: WhatsappIcon,
+  },
 ];
 
 type FormStatus = "idle" | "loading" | "success" | "error";
+
+const formComingSoon = true;
 
 function validate(name: string, email: string, message: string): string | null {
   if (!name.trim()) return "Por favor, informe seu nome.";
@@ -189,7 +197,18 @@ export default function Contact() {
                 <Sparkles size={16} className="text-accent" />
                 <h3 className="text-h3 m-0 font-bold text-white">Envie uma mensagem</h3>
               </div>
-              <span className="text-xs text-muted">Resposta em até 24h</span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-400/10 px-2.5 py-1 text-[11px] font-bold tracking-[1px] text-amber-300">
+                <Clock size={12} aria-hidden="true" />
+                EM BREVE
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2.5 rounded-lg border border-amber-400/30 bg-amber-400/[0.06] px-4 py-3 text-sm text-amber-200">
+              <Sparkles size={16} className="shrink-0 text-amber-300" aria-hidden="true" />
+              <span>
+                Esse formulário está em desenvolvimento e ainda não envia mensagens. Por enquanto,
+                use os canais diretos ao lado (e-mail, GitHub ou LinkedIn).
+              </span>
             </div>
 
             <div>
@@ -210,7 +229,7 @@ export default function Contact() {
                   setName(e.target.value);
                   setValidationError(null);
                 }}
-                disabled={status === "loading" || status === "success"}
+                disabled={formComingSoon || status === "loading" || status === "success"}
                 className="w-full rounded-lg border border-white/15 bg-white/[0.05] px-4 py-3.5 text-sm text-white placeholder:text-muted transition-all duration-200 focus:border-accent focus:bg-white/[0.08] focus:shadow-[0_0_12px_rgba(216,31,38,0.25)] focus:outline-none disabled:opacity-50"
               />
             </div>
@@ -233,7 +252,7 @@ export default function Contact() {
                   setEmail(e.target.value);
                   setValidationError(null);
                 }}
-                disabled={status === "loading" || status === "success"}
+                disabled={formComingSoon || status === "loading" || status === "success"}
                 className="w-full rounded-lg border border-white/15 bg-white/[0.05] px-4 py-3.5 text-sm text-white placeholder:text-muted transition-all duration-200 focus:border-accent focus:bg-white/[0.08] focus:shadow-[0_0_12px_rgba(216,31,38,0.25)] focus:outline-none disabled:opacity-50"
               />
             </div>
@@ -260,13 +279,13 @@ export default function Contact() {
                   setMessage(e.target.value);
                   setValidationError(null);
                 }}
-                disabled={status === "loading" || status === "success"}
+                disabled={formComingSoon || status === "loading" || status === "success"}
                 className="w-full resize-y rounded-lg border border-white/15 bg-white/[0.05] px-4 py-3.5 font-sans text-sm text-white placeholder:text-muted transition-all duration-200 focus:border-accent focus:bg-white/[0.08] focus:shadow-[0_0_12px_rgba(216,31,38,0.25)] focus:outline-none disabled:opacity-50"
               />
             </div>
 
             {/* Erro de validação ergonômico */}
-            {validationError && (
+            {!formComingSoon && validationError && (
               <div className="flex items-center gap-2.5 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300">
                 <AlertCircle size={16} className="shrink-0 text-red-400" aria-hidden="true" />
                 <span>{validationError}</span>
@@ -274,13 +293,13 @@ export default function Contact() {
             )}
 
             {/* Feedback de status */}
-            {status === "success" && (
+            {!formComingSoon && status === "success" && (
               <div className="flex items-center gap-2.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
                 <CheckCircle2 size={16} className="shrink-0 text-emerald-400" aria-hidden="true" />
                 <span>Seu cliente de e-mail foi aberto com a mensagem pronta — é só clicar em enviar.</span>
               </div>
             )}
-            {status === "error" && (
+            {!formComingSoon && status === "error" && (
               <div className="flex items-center gap-2.5 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300">
                 <AlertCircle size={16} className="shrink-0 text-red-400" aria-hidden="true" />
                 <span>Falha ao enviar. Tente novamente ou use o e-mail direto acima.</span>
@@ -289,10 +308,15 @@ export default function Contact() {
 
             <button
               type="submit"
-              disabled={status === "loading" || status === "success"}
+              disabled={formComingSoon || status === "loading" || status === "success"}
               className="group inline-flex min-h-[48px] items-center justify-center gap-2.5 rounded-lg bg-accent px-6 py-3.5 text-xs font-bold tracking-[1.5px] text-white shadow-[0_4px_20px_rgba(216,31,38,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#eb242c] hover:shadow-[0_6px_24px_rgba(216,31,38,0.55)] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {status === "loading" ? (
+              {formComingSoon ? (
+                <>
+                  <Clock size={15} />
+                  <span>EM BREVE</span>
+                </>
+              ) : status === "loading" ? (
                 <>
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                   <span>Enviando...</span>

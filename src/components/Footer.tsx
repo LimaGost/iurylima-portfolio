@@ -1,9 +1,10 @@
-import { GithubIcon, LinkedinIcon, MailIcon } from "./SocialIcons";
+import { GithubIcon, LinkedinIcon, MailIcon, WhatsappIcon } from "./SocialIcons";
 
 const socialLinks = [
   { label: "GITHUB", href: "https://github.com/LimaGost", icon: GithubIcon },
   { label: "LINKEDIN", href: "https://linkedin.com", icon: LinkedinIcon },
   { label: "EMAIL", href: "mailto:iuryslima_001@outlook.com", icon: MailIcon },
+  { label: "WHATSAPP", href: "https://wa.me/5562993464050", icon: WhatsappIcon },
 ];
 
 export default function Footer() {
