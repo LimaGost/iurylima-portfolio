@@ -70,8 +70,9 @@ export default function Contact() {
     setStatus("loading");
 
     try {
-      // Simulação de envio com delay suave
-      await new Promise((resolve) => setTimeout(resolve, 1200));
+      const subject = `Novo contato via portfólio - ${name}`;
+      const body = `Nome: ${name}\nE-mail: ${email}\n\nMensagem:\n${message}`;
+      window.location.href = `mailto:${directEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       setStatus("success");
       setName("");
       setEmail("");
@@ -276,7 +277,7 @@ export default function Contact() {
             {status === "success" && (
               <div className="flex items-center gap-2.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
                 <CheckCircle2 size={16} className="shrink-0 text-emerald-400" aria-hidden="true" />
-                <span>Mensagem enviada com sucesso! Responderei em breve.</span>
+                <span>Seu cliente de e-mail foi aberto com a mensagem pronta — é só clicar em enviar.</span>
               </div>
             )}
             {status === "error" && (
@@ -299,7 +300,7 @@ export default function Contact() {
               ) : status === "success" ? (
                 <>
                   <Check size={16} />
-                  <span>Mensagem enviada com sucesso!</span>
+                  <span>E-mail pronto para enviar!</span>
                 </>
               ) : (
                 <>
