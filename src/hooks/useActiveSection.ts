@@ -1,13 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /**
  * Rastreia qual das seções informadas está mais visível no momento, para
  * destacar o link ativo do menu, além de indicar se a página já passou de
  * um pequeno limite de scroll, para o estado translúcido/blur da navbar.
+ *
+ * O array `ids` é estabilizado via ref para evitar que um novo array literal
+ * (criado a cada render pelo chamador) dispare re-observe desnecessário.
  */
 export function useActiveSection(ids: string[], scrollThreshold = 24) {
   const [active, setActive] = useState<string>("");
   const [scrolled, setScrolled] = useState(false);
+  // Estabiliza referência: só atualiza se o conteúdo do array mudar
+  const idsRef = useRef(ids);
+  if (ids.join(",") !== idsRef.current.join(",")) idsRef.current = ids;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > scrollThreshold);
@@ -17,7 +23,8 @@ export function useActiveSection(ids: string[], scrollThreshold = 24) {
   }, [scrollThreshold]);
 
   useEffect(() => {
-    const sections = ids
+    const stableIds = idsRef.current;
+    const sections = stableIds
       .map((id) => document.getElementById(id))
       .filter((el): el is HTMLElement => el !== null);
     if (sections.length === 0) return;
@@ -33,7 +40,8 @@ export function useActiveSection(ids: string[], scrollThreshold = 24) {
     );
     sections.forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, [ids]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return { active, scrolled };
 }

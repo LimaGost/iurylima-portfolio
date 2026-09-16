@@ -4,20 +4,25 @@
   --font-display: "Anton", sans-serif;
   --font-body: "Inter", sans-serif;
 
-  /* tokens de design — fundo preto homogêneo em todo o site */
+  /* tokens de design — fundo preto homogêneo em todo o site com alto contraste */
   --color-accent: #d81f26;
   --color-accent-dim: #ad1418;
-  --color-ink: #f5f5f5;
+  --color-accent-glow: rgba(216, 31, 38, 0.4);
+  --color-ink: #ffffff;
   --color-dark: #000000;
   --color-page: #000000;
-  --color-muted: #a6a9b0;
-  --color-muted-2: #b4b7bd;
-  --color-body-text: #c7c9ce;
-  --color-body-text-2: #b4b7bd;
-  --color-thread: #6a6d74;
+  --color-muted: #b8bcc7;
+  --color-muted-2: #c8cbd4;
+  --color-body-text: #e1e3e8;
+  --color-body-text-2: #c8cbd4;
+  --color-thread: #7b7f89;
   --color-frame: #000000;
-  --color-surface: rgba(255, 255, 255, 0.04);
-  --color-surface-border: rgba(255, 255, 255, 0.1);
+  --color-surface: rgba(255, 255, 255, 0.05);
+  --color-surface-border: rgba(255, 255, 255, 0.12);
+
+  /* glow aranha para hover de card e elementos interativos */
+  --color-glow: rgba(216, 31, 38, 0.25);
+  --color-glow-strong: rgba(216, 31, 38, 0.45);
 
   /* tokens legados (usados no preloader) */
   --color-spider-red: #d81f26;
@@ -25,7 +30,7 @@
   --color-spider-black: #030303;
   --color-spider-white: #ffffff;
 
-  /* escala tipográfica editorial — uma progressão consistente, sem tamanhos aleatórios */
+  /* escala tipográfica editorial — progressão consistente, sem tamanhos aleatórios */
   --text-display: clamp(2.75rem, 2rem + 3.6vw, 5.75rem);
   --text-display--line-height: 0.94;
   --text-display--letter-spacing: 0.01em;
@@ -74,7 +79,7 @@ textarea::placeholder {
 }
 
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
   background: var(--color-dark);
@@ -121,7 +126,7 @@ textarea::placeholder {
   border-radius: 2px;
 }
 
-/* base para animação de entrada no scroll, controlada via data-reveal pelo IntersectionObserver */
+/* ── Reveal (scroll-driven fade-up) ─────────────────────────────────── */
 [data-reveal] {
   opacity: 0;
   transform: translateY(24px);
@@ -133,24 +138,17 @@ textarea::placeholder {
   transform: translateY(0);
 }
 
+/* ── Marquee ─────────────────────────────────────────────────────────── */
 @keyframes marquee-left {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
 }
 @keyframes marquee-right {
-  from {
-    transform: translateX(-50%);
-  }
-  to {
-    transform: translateX(0);
-  }
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
 }
 
-/* cursor customizado — só em desktop com mouse de precisão, ver Cursor.tsx */
+/* ── Cursor customizado (desktop / pointer fino) ─────────────────────── */
 @media (hover: hover) and (pointer: fine) {
   html.has-custom-cursor,
   html.has-custom-cursor a,
@@ -165,6 +163,114 @@ textarea::placeholder {
   background: rgba(216, 31, 38, 0.08);
 }
 
+/* ── Glass card ──────────────────────────────────────────────────────── */
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+/* ── Hover glow ──────────────────────────────────────────────────────── */
+.card-glow {
+  transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+}
+.card-glow:hover {
+  box-shadow: 0 0 0 1px rgba(216, 31, 38, 0.45), 0 8px 32px rgba(216, 31, 38, 0.22);
+  border-color: rgba(216, 31, 38, 0.55);
+  transform: translateY(-3px);
+}
+
+/* ── HUD / Spider theme details ─────────────────────────────────────── */
+.badge-spider {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(216, 31, 38, 0.08);
+  border: 1px solid rgba(216, 31, 38, 0.3);
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(216, 31, 38, 0.12);
+}
+
+.radar-pulse {
+  position: relative;
+}
+.radar-pulse::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  border: 1px solid var(--color-accent);
+  opacity: 0.8;
+  animation: spider-radar 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+@keyframes spider-radar {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.9;
+  }
+  70% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* ── Scroll progress bar ─────────────────────────────────────────────── */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-accent);
+  transform-origin: left;
+  z-index: 200;
+  /* Suporte nativo via animation-timeline (Chrome 115+) */
+  animation: scroll-grow linear;
+  animation-timeline: scroll();
+  animation-range: 0% 100%;
+}
+@keyframes scroll-grow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* ── Número de seção decorativo ──────────────────────────────────────── */
+.section-number {
+  font-family: var(--font-display);
+  font-size: clamp(6rem, 12vw, 14rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: rgba(255, 255, 255, 0.03);
+  pointer-events: none;
+  user-select: none;
+  position: absolute;
+}
+
+/* ── Barra de skill (progress) ───────────────────────────────────────── */
+.skill-bar-inner {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-accent-dim), var(--color-accent));
+  border-radius: 999px;
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--bar-delay, 0ms);
+}
+.skill-bar-inner.bar-visible {
+  transform: scaleX(1);
+}
+
+/* ── Reduced motion ─────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -180,5 +286,11 @@ textarea::placeholder {
   [data-reveal] {
     opacity: 1;
     transform: none;
+  }
+  .scroll-progress {
+    animation: none;
+  }
+  .skill-bar-inner {
+    transform: scaleX(1);
   }
 }

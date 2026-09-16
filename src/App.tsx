@@ -10,6 +10,8 @@ import Projects from "./components/Projects";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import Cursor from "./components/Cursor";
+import ScrollProgress from "./components/ScrollProgress";
+import BackToTop from "./components/BackToTop";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -17,6 +19,7 @@ function App() {
   return (
     <>
       {loading && <Preloader onFinish={() => setLoading(false)} />}
+      <ScrollProgress />
       <Cursor />
       <a href="#main" className="skip-link">
         Pular para o conteúdo
@@ -33,6 +36,7 @@ function App() {
           <Contact />
         </main>
         <Footer />
+        <BackToTop />
       </div>
     </>
   );

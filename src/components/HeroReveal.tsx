@@ -290,7 +290,7 @@ export default function HeroReveal({
 
       // baseado na MENOR dimensão do canvas: numa hero larga, escalar pela largura fazia
       // o círculo crescer bem além da altura do rosto e cortar a máscara em cima de cabelo/pescoço
-      const radiusPx = Math.max(0, r) * Math.min(cw, ch) * 0.22;
+      const radiusPx = Math.max(0, r) * Math.min(cw, ch) * 0.38;
       const centerXpx = x * cw;
       const centerYpx = ch - y * ch; // origem do DOM é canto superior esquerdo, a do WebGL é inferior esquerdo
 
