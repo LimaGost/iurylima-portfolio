@@ -51,7 +51,7 @@ export default function Hero() {
               <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
             </span>
             <span className="text-xs font-bold tracking-[2px] text-accent uppercase">
-              Seu desenvolvedor de bairro favorito
+              Seu desenvolvedor favorito
             </span>
           </div>
 
