@@ -61,7 +61,7 @@ export default function Hero() {
               textShadow: "0 0 32px rgba(216,31,38,0.35), 3px 3px 0 #121316",
             }}
           >
-            IURY LIMA<span className="text-accent">.</span>
+            IURY LIMA<span className="text-accent"></span>
           </h1>
 
           {/* Quick Context Pills — leitura instantânea de contexto */}
